@@ -1,32 +1,36 @@
 import { Medicine } from "src/medicine/entities/medicine.entity";
 import { IStock } from "./stock.interface";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { StockTransaction } from "src/stock-transaction/entities/stock-transaction.entity";
 
 @Entity('stocks')
 export class Stock implements IStock {
-    @PrimaryGeneratedColumn('increment')
-    id: number;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
-    @ManyToOne(() => Medicine, (medicine) => medicine.stock)
-    @JoinColumn({ name: 'medicine_id' })
-    medicine: Medicine;
+  @ManyToOne(() => Medicine, (medicine) => medicine.stock)
+  @JoinColumn({ name: 'medicine_id' })
+  medicine: Medicine;
 
-    @Column({ nullable: false })
-    quantity: number;
+  @OneToMany(() => StockTransaction, (stockTransaction) => stockTransaction.stock)
+  stockTransaction: StockTransaction[];
 
-    @Column({ nullable: false })
-    description: string;
+  @Column({ nullable: false })
+  quantity: number;
 
-    @CreateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)',
-    })
-    createdAt: Date;
+  @Column({ nullable: false })
+  description: string;
 
-    @UpdateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)',
-        onUpdate: 'CURRENT_TIMESTAMP(6)',
-    })
-    updatedAt: Date;
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
+  updatedAt: Date;
 }

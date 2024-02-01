@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { UpdateMedicineDto } from './dto/update-medicine.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Medicine } from './entities/medicine.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class MedicineService {
-  create(createMedicineDto: CreateMedicineDto) {
-    return 'This action adds a new medicine';
+  constructor(
+    @InjectRepository(Medicine)
+    private medicineRepository: Repository<Medicine>) { }
+
+  async create(createMedicineDto: CreateMedicineDto): Promise<Medicine> {
+    const medicine = this.medicineRepository.create(createMedicineDto);
+    return await this.medicineRepository.save(medicine);
   }
 
-  findAll() {
-    return `This action returns all medicine`;
+  async findAll(): Promise<Medicine[]> {
+    return await this.medicineRepository.find({ relations: { stock: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} medicine`;
+  async findOne(id: number): Promise<Medicine> {
+    const medicine = await this.medicineRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        stock: true,
+      },
+    });
+
+    if (!medicine) {
+      throw new NotFoundException(`Medicine by id: ${id} not found`);
+    }
+    return medicine;
+
   }
 
-  update(id: number, updateMedicineDto: UpdateMedicineDto) {
-    return `This action updates a #${id} medicine`;
+  async update(id: number, updateMedicineDto: UpdateMedicineDto): Promise<Medicine> {
+    const updateResult = await this.medicineRepository.update(id, updateMedicineDto);
+
+    if (!updateResult.affected) {
+      throw new NotFoundException(`Medicine by id: ${id} not found`);
+    }
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} medicine`;
+  async remove(id: number): Promise<{ message: String }> {
+    const deleteResult = await this.medicineRepository.delete(id);
+
+    if (!deleteResult.affected) {
+      throw new NotFoundException(`Medicine by id: ${id} not found`);
+    }
+    return { message: 'The medicine has been successfully deleted.' };
   }
 }

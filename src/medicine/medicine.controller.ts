@@ -3,7 +3,7 @@ import { MedicineService } from './medicine.service';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { UpdateMedicineDto } from './dto/update-medicine.dto';
 
-@Controller('medicine')
+@Controller('v1/medicines')
 export class MedicineController {
   constructor(private readonly medicineService: MedicineService) {}
 
@@ -18,8 +18,8 @@ export class MedicineController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.medicineService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.medicineService.findOne(id);
   }
 
   @Patch(':id')

@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
+import { Repository } from 'typeorm';
+import { Stock } from './entities/stock.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class StockService {
-  create(createStockDto: CreateStockDto) {
-    return 'This action adds a new stock';
+  constructor(
+    @InjectRepository(Stock)
+    private stockRepository: Repository<Stock>) { }
+
+  async create(createStockDto: CreateStockDto): Promise<Stock> {
+    const stock = this.stockRepository.create(createStockDto);
+    return await this.stockRepository.save(stock);
   }
 
-  findAll() {
-    return `This action returns all stock`;
+  async findAll(): Promise<Stock[]> {
+    return await this.stockRepository.find({ relations: { medicine: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} stock`;
+  async findOne(id: number): Promise<Stock> {
+
+    const stock = await this.stockRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        medicine: true,
+        stockTransaction: true
+      },
+    });
+
+    if (!stock) {
+      throw new NotFoundException(`Stock by id: ${id} not found`);
+    }
+
+    return stock;
   }
 
-  update(id: number, updateStockDto: UpdateStockDto) {
-    return `This action updates a #${id} stock`;
+  async update(id: number, updateStockDto: UpdateStockDto) {
+    const updateResult = await this.stockRepository.update(id, updateStockDto);
+
+    if (!updateResult.affected) {
+      throw new NotFoundException(`stock by id: ${id} not found`);
+    }
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} stock`;
+  async remove(id: number) {
+    const deleteResult = await this.stockRepository.delete(id);
+
+    if (!deleteResult.affected) {
+      throw new NotFoundException(`Stock by id: ${id} not found`);
+    }
+    return { message: 'The Stock has been successfully deleted.' };
   }
 }

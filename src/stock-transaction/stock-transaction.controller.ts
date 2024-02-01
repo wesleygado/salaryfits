@@ -1,12 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { StockTransactionService } from './stock-transaction.service';
+import { CreateStockTransactionDto } from './dto/create-stock-transaction.dto';
 
-@Controller('stock-transaction')
+@Controller('v1/stock-transactions')
 export class StockControlController {
   constructor(private readonly stockControlService: StockTransactionService) {}
 
   @Post()
-  create(@Body() createStockControlDto) {
+  create(@Body() createStockControlDto: CreateStockTransactionDto) {
     return this.stockControlService.create(createStockControlDto);
   }
 

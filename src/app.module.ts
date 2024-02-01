@@ -3,10 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MedicineModule } from './medicine/medicine.module';
 import { StockModule } from './stock/stock.module';
-import { StockTransactionModule } from './stock-control/stock-transaction.module';
+import { StockTransactionModule } from './stock-transaction/stock-transaction.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmConfigService } from './database/typeorm-config';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { TypeOrmConfigService } from './database/typeorm-config';
     TypeOrmModule.forRootAsync({useClass: TypeOrmConfigService}),
     MedicineModule,
     StockModule,
-    StockTransactionModule],
+    StockTransactionModule,
+    UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
