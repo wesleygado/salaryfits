@@ -50,7 +50,7 @@ export class StockTransactionService {
     const updateResult = await this.stockTransactionRepository.update(stockTransaction.id, stockTransaction);
 
     if (!updateResult.affected) {
-      throw new NotFoundException(`stock by id: ${id} not found`);
+      throw new NotFoundException(`Estoque de id: ${id} não encontrado`);
     }
 
     return this.findOne(id);
@@ -60,9 +60,9 @@ export class StockTransactionService {
     const deleteResult = await this.stockTransactionRepository.delete(id);
 
     if (!deleteResult.affected) {
-      throw new NotFoundException(`Stock Transaction by id: ${id} not found`);
+      throw new NotFoundException(`Transação de estoque de id: ${id} não encontrada`);
     }
-    return { message: 'The Stock Transaction has been successfully deleted.' };
+    return { message: 'Transação de estoque excluida com sucesso.' };
   }
 
   private async updateStockQuantity(stock: Stock, transaction: StockTransaction) {
@@ -75,7 +75,7 @@ export class StockTransactionService {
     }
 
     if (stock.quantity < 0) {
-      throw new BadRequestException('A transaction has been canceled; there is not enough stock.')
+      throw new BadRequestException('A Transação de estoque foi cancelada, não há estoque o suficiente')
     }
 
     const stockDTO: UpdateStockDto = {

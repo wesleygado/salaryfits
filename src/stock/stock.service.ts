@@ -36,7 +36,7 @@ export class StockService {
     });
 
     if (!stock) {
-      throw new NotFoundException(`Stock by id: ${id} not found`);
+      throw new NotFoundException(`Estoque do medicamento de id: ${id} não encontrado`);
     }
 
     return stock;
@@ -46,7 +46,7 @@ export class StockService {
     const updateResult = await this.stockRepository.update(id, updateStockDto);
 
     if (!updateResult.affected) {
-      throw new NotFoundException(`stock by id: ${id} not found`);
+      throw new NotFoundException(`Estoque do medicamento de id: ${id} não encontrado`);
     }
 
     return this.findOne(id);
@@ -56,16 +56,16 @@ export class StockService {
     const deleteResult = await this.stockRepository.delete(id);
 
     if (!deleteResult.affected) {
-      throw new NotFoundException(`Stock by id: ${id} not found`);
+      throw new NotFoundException(`Estoque do medicamento de id: ${id} não encontrado`);
     }
-    return { message: 'The Stock has been successfully deleted.' };
+    return { message: 'O Estoque do medicamento foi excluido com sucesso' };
   }
 
   async updateStockByStockTransaction(id: number, stock: Stock) {
     const updateResult = await this.stockRepository.update(id, stock);
 
     if (!updateResult.affected) {
-      throw new NotFoundException(`stock by id: ${id} not found`);
+      throw new NotFoundException(`Estoque do medicamento de id: ${id} não encontrado`);
     }
 
     return this.findOne(id);
@@ -112,6 +112,10 @@ export class StockService {
         stockTransaction: true
       },
     });
+
+    if(!stockTransactionsReport) {
+      throw new NotFoundException('Não há transações correspondentes')
+    }
 
     return {
       Informations: {

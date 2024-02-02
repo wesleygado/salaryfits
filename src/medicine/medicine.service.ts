@@ -31,7 +31,7 @@ export class MedicineService {
     });
 
     if (!medicine) {
-      throw new NotFoundException(`Medicine by id: ${id} not found`);
+      throw new NotFoundException(`Medicamento de id: ${id} não encontrado`);
     }
     return medicine;
 
@@ -41,7 +41,7 @@ export class MedicineService {
     const updateResult = await this.medicineRepository.update(id, updateMedicineDto);
 
     if (!updateResult.affected) {
-      throw new NotFoundException(`Medicine by id: ${id} not found`);
+      throw new NotFoundException(`Medicamento de id: ${id} não encontrado`);
     }
 
     return this.findOne(id);
@@ -51,8 +51,8 @@ export class MedicineService {
     const deleteResult = await this.medicineRepository.delete(id);
 
     if (!deleteResult.affected) {
-      throw new NotFoundException(`Medicine by id: ${id} not found`);
+      throw new NotFoundException(`Medicamento de id: ${id} não encontrado`);
     }
-    return { message: 'The medicine has been successfully deleted.' };
+    return { message: 'O medicamento foi excluido com sucesso' };
   }
 }

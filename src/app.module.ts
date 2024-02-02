@@ -9,11 +9,16 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmConfigService } from './database/typeorm-config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'src/public'),
     }),
     TypeOrmModule.forRootAsync({useClass: TypeOrmConfigService}),
     MedicineModule,
