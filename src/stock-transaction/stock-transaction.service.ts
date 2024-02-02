@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStockTransactionDto } from './dto/create-stock-transaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StockTransaction } from './entities/stock-transaction.entity';
@@ -6,14 +6,16 @@ import { Repository } from 'typeorm';
 import { StockService } from 'src/stock/stock.service';
 import { TransactionType } from './entities/transaction-type.enum';
 import { Stock } from 'src/stock/entities/stock.entity';
+import { UpdateStockTransactionDto } from './dto/update-stock-transaction.dto';
+import { UpdateStockDto } from 'src/stock/dto/update-stock.dto';
 @Injectable()
 export class StockTransactionService {
   constructor(@InjectRepository(StockTransaction)
   private stockTransactionRepository: Repository<StockTransaction>,
-  private stockService: StockService) { }
+    private stockService: StockService) { }
 
-  async create(createStockControlDto: CreateStockTransactionDto) {
-    const transaction = this.stockTransactionRepository.create(createStockControlDto);
+  async create(createStockTransactionDto: CreateStockTransactionDto) {
+    const transaction = this.stockTransactionRepository.create(createStockTransactionDto);
     const stock = await this.stockService.findOne(transaction.stock.id);
     transaction.quantityBefore = stock.quantity;
     const stockUpdated = await this.updateStockQuantity(stock, transaction);
@@ -22,20 +24,42 @@ export class StockTransactionService {
     return await this.stockTransactionRepository.save(transaction);
   }
 
-  findAll() {
-    return `This action returns all stockControl`;
+  async findAll() {
+    return await this.stockTransactionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} stockControl`;
+  async findOne(id: number) {
+    return await this.stockTransactionRepository.findOne(
+      {
+        where: { id: id },
+        relations: { stock: true }
+      });
   }
 
-  update(id: number, updateStockControlDto) {
-    return `This action updates a #${id} stockControl`;
+  async update(id: number, updateStockTransactionDto: UpdateStockTransactionDto) {
+    const stockTransaction = await this.findOne(id);
+    const stock = await this.stockService.findOne(stockTransaction.stock.id);
+    stockTransaction.quantityTransaction = updateStockTransactionDto.quantityTransaction;
+    stockTransaction.transitionType = updateStockTransactionDto.transitionType;
+    const stockUpdated = await this.updateStockQuantity(stock, stockTransaction);
+    stockTransaction.quantityAfter = stockUpdated.quantity;
+
+    const updateResult = await this.stockTransactionRepository.update(stockTransaction.id, stockTransaction);
+
+    if (!updateResult.affected) {
+      throw new NotFoundException(`stock by id: ${id} not found`);
+    }
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} stockControl`;
+  async remove(id: number) {
+    const deleteResult = await this.stockTransactionRepository.delete(id);
+
+    if (!deleteResult.affected) {
+      throw new NotFoundException(`Stock Transaction by id: ${id} not found`);
+    }
+    return { message: 'The Stock Transaction has been successfully deleted.' };
   }
 
   private async updateStockQuantity(stock: Stock, transaction: StockTransaction) {
@@ -51,6 +75,10 @@ export class StockTransactionService {
       throw new BadRequestException('A transaction has been canceled; there is not enough stock.')
     }
 
-    return await this.stockService.update(stock.id, stock)
+    const stockDTO: UpdateStockDto = {
+      quantity: stock.quantity,
+    }
+
+    return await this.stockService.update(stock.id, stockDTO)
   }
 }

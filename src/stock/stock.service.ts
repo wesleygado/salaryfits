@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Stock } from './entities/stock.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -57,4 +57,39 @@ export class StockService {
     }
     return { message: 'The Stock has been successfully deleted.' };
   }
+
+  async updateStockByStockTransaction(id: number, stock: Stock) {
+    const updateResult = await this.stockRepository.update(id, stock);
+
+    if (!updateResult.affected) {
+      throw new NotFoundException(`stock by id: ${id} not found`);
+    }
+
+    return this.findOne(id);
+  }
+
+  async findStockTransactionsByStock(id: number, startDay: number, startMonth: number, startYear: number, endDay: number, endMonth: number, endYear: number) {
+    const startDate = new Date(`${startYear}-${startMonth}-${startDay}`);
+    const endDate = new Date(`${endYear}-${endMonth}-${endDay}`);
+    const stockTransactionsReport = await this.stockRepository.findOne({
+      where: {
+        id: id,
+        stockTransaction: {
+          createdAt: Between(startDate, endDate)
+        }
+      },
+      relations: {
+        medicine: true,
+        stockTransaction: true
+      },
+    });
+
+    return { Informations: {
+      quantity_stock_now: stockTransactionsReport.quantity,
+      report_start_date: startDate,
+      report_end_date: endDate 
+    }, stock_report: stockTransactionsReport}
+
+  }
+
 }

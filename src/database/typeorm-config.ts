@@ -12,6 +12,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: process.env.PASSWORD,
       host: process.env.HOST,
       port: parseInt(process.env.DB_PORT),
+      timezone: process.env.TZ, 
       synchronize: false,
       type: 'mysql',
       entities: [join(__dirname, '..', '**/*entity.{ts,js}')],

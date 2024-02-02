@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
@@ -21,6 +21,20 @@ export class StockController {
   findOne(@Param('id') id: string) {
     return this.stockService.findOne(+id);
   }
+
+  @Get('report/:id')
+  findStockTransactionsByStock(
+    @Query('start_day') startDay: number,
+    @Query('start_month') startMonth: number,
+    @Query('start_year') startYear: number,
+    @Query('end_day') endDay: number,
+    @Query('end_month') endMonth: number,
+    @Query('end_year') endYear: number,
+    @Param('id') id: number,
+    ) {
+    return this.stockService.findStockTransactionsByStock(id, startDay, startMonth, startYear, endDay, endMonth, endYear);
+  }
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto) {

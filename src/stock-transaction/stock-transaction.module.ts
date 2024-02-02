@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Stock } from 'src/stock/entities/stock.entity';
 import { StockTransaction } from './entities/stock-transaction.entity';
 import { StockService } from 'src/stock/stock.service';
+import { IsIdStockExists } from 'src/validators/validator-stock-id';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Stock, StockTransaction])],
   controllers: [StockControlController],
-  providers: [StockTransactionService, StockService],
+  providers: [StockTransactionService, StockService, IsIdStockExists],
 })
 export class StockTransactionModule {}
