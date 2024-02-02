@@ -56,3 +56,5 @@ Na pasta `src/database` há o arquivo `bancoTeste.sql`, com alguns dados salvos 
 ## Documentação
 
 Para acessar uma documentação básica da aplicação, você poderá visualizar localmente na aplicação utilizando a rota `/public`.
+
+![print documentação](https://wesleygado.dev/wp-content/uploads/2024/02/doc.png)
