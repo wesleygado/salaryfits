@@ -91,5 +91,4 @@ export class StockService {
     }, stock_report: stockTransactionsReport}
 
   }
-
 }
