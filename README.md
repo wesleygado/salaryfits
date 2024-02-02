@@ -11,7 +11,7 @@ $ npm install
 
 ## Banco de Dados
 
-No arquivo `src/database/typeorm-config.ts` você terá acesso a seguinte classe abaixo, onde será configurado o bando de dados, lembre-se de colocar as váriaveis de ambiente correspondentes no .env:
+No arquivo `src/database/typeorm-config.ts` você terá acesso a seguinte classe abaixo, onde será configurado o banco de dados, lembre-se de colocar as váriaveis de ambiente correspondentes no .env:
 
 ```tsx
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
