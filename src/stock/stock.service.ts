@@ -4,12 +4,15 @@ import { UpdateStockDto } from './dto/update-stock.dto';
 import { Between, Repository } from 'typeorm';
 import { Stock } from './entities/stock.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { StockTransaction } from 'src/stock-transaction/entities/stock-transaction.entity';
 
 @Injectable()
 export class StockService {
   constructor(
     @InjectRepository(Stock)
-    private stockRepository: Repository<Stock>) { }
+    private stockRepository: Repository<Stock>,
+    @InjectRepository(StockTransaction)
+    private stockTransationRepository: Repository<StockTransaction>) { }
 
   async create(createStockDto: CreateStockDto): Promise<Stock> {
     const stock = this.stockRepository.create(createStockDto);
@@ -68,6 +71,32 @@ export class StockService {
     return this.findOne(id);
   }
 
+  async allTransactionsStocks() {
+    const allTransatcions = await this.stockRepository.find({ relations: { medicine: true, stockTransaction: true } });
+    const quantityStock = allTransatcions.map((stock) => stock.quantity);
+    const total = quantityStock.reduce((total, quantityStock) => total + quantityStock, 0)
+    return { all_quantity_general_stock: total, all_transactions: allTransatcions };
+  }
+
+  async allTransactionsStocksByTime(startDay: number, startMonth: number, startYear: number, endDay: number, endMonth: number, endYear: number) {
+    const startDate = new Date(`${startYear}-${startMonth}-${startDay}`);
+    const endDate = new Date(`${endYear}-${endMonth}-${endDay}`);
+
+    const allTransatcions = await this.stockTransationRepository.find({
+      where: {
+        createdAt: Between(startDate, endDate)
+      },
+      relations: {
+        stock: true,
+      },
+    });
+
+    return {
+      report_start_date: startDate,
+      report_end_date: endDate, transactions: allTransatcions,
+    };
+  }
+
   async findStockTransactionsByStock(id: number, startDay: number, startMonth: number, startYear: number, endDay: number, endMonth: number, endYear: number) {
     const startDate = new Date(`${startYear}-${startMonth}-${startDay}`);
     const endDate = new Date(`${endYear}-${endMonth}-${endDay}`);
@@ -84,11 +113,13 @@ export class StockService {
       },
     });
 
-    return { Informations: {
-      quantity_stock_now: stockTransactionsReport.quantity,
-      report_start_date: startDate,
-      report_end_date: endDate 
-    }, stock_report: stockTransactionsReport}
+    return {
+      Informations: {
+        quantity_stock_now: stockTransactionsReport.quantity,
+        report_start_date: startDate,
+        report_end_date: endDate
+      }, stock_report: stockTransactionsReport
+    }
 
   }
 }

@@ -1,40 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { UserRole } from './entities/user-role.enum';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class UserService {
-  findOneByEmail(email: string) {
-    let user = new User()
-    return user = {
-      id: 3,
-      email: 'teste@gmail.com',
-      password: '123',
-      createdAt: new Date('2010-10-10'),
-      updatedAt: new Date('2010-10-10'),
-      name: 'wes',
-      role: UserRole.ADMIN
-    };
-  }
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>) {}
+ 
+  async create(createUserDto: CreateUserDto) {
+    const user = this.userRepository.create(createUserDto);
+    return await this.userRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return await this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.userRepository.findOneBy({id});
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    updateUserDto.password = await this.setPassword(updateUserDto.password);
+    const updateResult = await this.userRepository.update(id, updateUserDto);
+
+    if (!updateResult.affected) {
+      throw new NotFoundException(`Usuário de id: ${id} não encontrado`);
+    }
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const deleteResult = await this.userRepository.delete(id);
+
+    if (!deleteResult.affected) {
+      throw new NotFoundException(`Usuário de id: ${id} não encontrado`);
+    }
+    return { message: 'Usuário foi excluido com sucesso' };
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.userRepository.findOneBy({email});
+  }
+
+  private async setPassword(password: string) {
+    const salt = await bcrypt.genSalt();
+    return await bcrypt.hash(password, salt);
   }
 }

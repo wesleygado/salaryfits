@@ -15,8 +15,11 @@ export class StockTransactionService {
     private stockService: StockService) { }
 
   async create(createStockTransactionDto: CreateStockTransactionDto) {
-    const transaction = this.stockTransactionRepository.create(createStockTransactionDto);
-    const stock = await this.stockService.findOne(transaction.stock.id);
+    const transaction = new StockTransaction();
+    const stock = await this.stockService.findOne(createStockTransactionDto.stock);
+    transaction.stock = stock;
+    transaction.quantityTransaction = createStockTransactionDto.quantityTransaction;
+    transaction.transitionType = createStockTransactionDto.transitionType;
     transaction.quantityBefore = stock.quantity;
     const stockUpdated = await this.updateStockQuantity(stock, transaction);
     transaction.quantityAfter = stockUpdated.quantity;

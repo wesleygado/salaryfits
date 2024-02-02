@@ -11,6 +11,7 @@ export class Stock implements IStock {
 
   @ManyToOne(() => Medicine, (medicine) => medicine.stock, {
     onDelete: "CASCADE",
+    eager: true,
   })
   @JoinColumn({ name: 'medicine_id' })
   medicine: Medicine;

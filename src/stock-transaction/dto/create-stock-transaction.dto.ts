@@ -7,7 +7,7 @@ import { Expose } from "class-transformer";
 export class CreateStockTransactionDto {
   @IsPositive({ message: 'ID do estoque é obrigatório e deve ser um número' })
   @Validate(IsIdStockExists)
-  stock: Stock;
+  stock: number;
 
   @IsPositive({ message: 'Quantidade da movimentação é obrigatório e deve ser um número' })
   @Expose({ name: 'quantity_transaction'})

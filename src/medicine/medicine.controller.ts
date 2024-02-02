@@ -10,31 +10,39 @@ import { UserRole } from 'src/user/entities/user-role.enum';
 
 @Controller('v1/medicines')
 export class MedicineController {
-  constructor(private readonly medicineService: MedicineService) {}
+  constructor(private readonly medicineService: MedicineService) { }
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.EMPLOYEE)
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
   create(@Body() createMedicineDto: CreateMedicineDto) {
     return this.medicineService.create(createMedicineDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
   findAll() {
     return this.medicineService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.EMPLOYEE, UserRole.ADMIN)
   findOne(@Param('id') id: number) {
     return this.medicineService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updateMedicineDto: UpdateMedicineDto) {
     return this.medicineService.update(+id, updateMedicineDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {
     return this.medicineService.remove(+id);
   }
